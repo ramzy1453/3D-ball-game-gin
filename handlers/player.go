@@ -41,7 +41,7 @@ func CreatePlayer() gin.HandlerFunc {
 		newUser := models.Player{
 			Id:     primitive.NewObjectID(),
 			Name:   player.Name,
-			Scores: []int{},
+			Scores: []float32{},
 		}
 
 		result, err := playerCollection.InsertOne(ctx, newUser)
@@ -58,6 +58,7 @@ func CreatePlayer() gin.HandlerFunc {
 
 func GetPlayers() gin.HandlerFunc {
 	return func(c *gin.Context) {
+
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		var users []models.Player
 		defer cancel()
@@ -71,6 +72,7 @@ func GetPlayers() gin.HandlerFunc {
 
 		//reading from the db in an optimal way
 		defer cursor.Close(ctx)
+
 		for cursor.Next(ctx) {
 			var singleUser models.Player
 			if err = cursor.Decode(&singleUser); err != nil {
@@ -90,10 +92,11 @@ func UpdateScore() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
-		fmt.Println(c.Param("id"))
 		playerId, _ := primitive.ObjectIDFromHex(c.Param("id"))
 		var body responses.ScoreBody
 		err := c.BindJSON(&body)
+
+		fmt.Println(body.Score)
 
 		if err != nil {
 			c.JSON(http.StatusBadRequest, responses.PlayerResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
@@ -136,7 +139,12 @@ func GetLeaderboard() gin.HandlerFunc {
 			{
 				{"$project", bson.M{
 					"name":      1,
-					"bestScore": bson.M{"$max": "$scores"},
+					"bestScore": bson.M{"min": "$scores"},
+				}},
+			},
+			{
+				{"$sort", bson.M{
+					"bestScore": 1,
 				}},
 			},
 		}

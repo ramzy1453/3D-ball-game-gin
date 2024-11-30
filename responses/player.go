@@ -7,10 +7,10 @@ type PlayerResponse struct {
 }
 
 type ScoreBody struct {
-	Score int `json:"score"`
+	Score float32 `json:"score"`
 }
 
 type Leaderboard struct {
-	Name      string `json:"name"`
-	BestScore int    `json:"bestScore"`
+	Name      string  `json:"name"`
+	BestScore float32 `json:"bestScore"`
 }
