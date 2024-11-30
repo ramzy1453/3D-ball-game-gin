@@ -11,6 +11,7 @@ type ScoreBody struct {
 }
 
 type Leaderboard struct {
-	Name      string  `json:"name"`
-	BestScore float32 `json:"bestScore"`
+	Name      string    `json:"name"`
+	BestScore float32   `json:"bestScore"`
+	Scores    []float32 `json:"scores"`
 }

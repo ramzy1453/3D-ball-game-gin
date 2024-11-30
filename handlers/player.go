@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"net/http"
@@ -42,6 +41,14 @@ func CreatePlayer() gin.HandlerFunc {
 			Id:     primitive.NewObjectID(),
 			Name:   player.Name,
 			Scores: []float32{},
+		}
+		userExistent := playerCollection.FindOne(ctx, bson.M{"name": player.Name})
+		if userExistent.Err() == nil {
+			c.JSON(http.StatusOK, responses.PlayerResponse{
+				Status:  http.StatusBadRequest,
+				Message: "player-already-exists",
+			})
+			return
 		}
 
 		result, err := playerCollection.InsertOne(ctx, newUser)
@@ -96,8 +103,6 @@ func UpdateScore() gin.HandlerFunc {
 		var body responses.ScoreBody
 		err := c.BindJSON(&body)
 
-		fmt.Println(body.Score)
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, responses.PlayerResponse{Status: http.StatusBadRequest, Message: "error", Data: map[string]interface{}{"data": err.Error()}})
 		}
@@ -140,11 +145,17 @@ func GetLeaderboard() gin.HandlerFunc {
 				{"$project", bson.M{
 					"name":      1,
 					"bestScore": bson.M{"$min": "$scores"},
+					"scores":    1,
 				}},
 			},
 			{
-				{"$sort", bson.M{
-					"bestScore": 1,
+				{"$match", bson.M{
+					"scores": bson.M{"$ne": bson.A{}},
+				}},
+			},
+			{
+				{"$sort", bson.D{
+					{"bestScore", 1},
 				}},
 			},
 		}
