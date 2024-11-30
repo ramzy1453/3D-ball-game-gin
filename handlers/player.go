@@ -139,7 +139,7 @@ func GetLeaderboard() gin.HandlerFunc {
 			{
 				{"$project", bson.M{
 					"name":      1,
-					"bestScore": bson.M{"min": "$scores"},
+					"bestScore": bson.M{"$min": "$scores"},
 				}},
 			},
 			{
