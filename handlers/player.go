@@ -141,16 +141,16 @@ func GetLeaderboard() gin.HandlerFunc {
 		defer cancel()
 
 		pipeline := mongo.Pipeline{
+
+			{
+				{"$match", bson.M{
+					"scores": bson.M{"$ne": bson.A{}},
+				}},
+			},
 			{
 				{"$project", bson.M{
 					"name":      1,
 					"bestScore": bson.M{"$min": "$scores"},
-					"scores":    1,
-				}},
-			},
-			{
-				{"$match", bson.M{
-					"scores": bson.M{"$ne": bson.A{}},
 				}},
 			},
 			{
