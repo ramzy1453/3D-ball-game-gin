@@ -1,35 +1,33 @@
-// main.go
 package main
 
 import (
+	"net/http"
+
 	"github.com/gin-gonic/gin"
+	"github.com/ramzy1453/3D-ball-game-gin/config"
 )
 
 
-func Logger() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		println("before")
-		c.Next()
-	}
-}
-
 
 func main() {
-	// Create a new Gin router
+
+	// Initialize Gin router
+
 	router := gin.Default()
 
-	router.Use(Logger())
+	// Define routes
 
-	// Define a route
 	router.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "Hello, Nm!",
+
+		c.JSON(http.StatusOK, gin.H{
+
+			"message": "Hello, Gin!",
+
 		})
+
 	})
 
-	// Run the server on port 8080
-	err := router.Run(":8080")
-	if err != nil {
-		panic(err)
-	}
+	config.ConnectDB()
+	router.Run(":8080")
+
 }
