@@ -5,9 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/ramzy1453/3D-ball-game-gin/config"
+	"github.com/ramzy1453/3D-ball-game-gin/routes"
 )
-
-
 
 func main() {
 
@@ -21,13 +20,19 @@ func main() {
 
 		c.JSON(http.StatusOK, gin.H{
 
-			"message": "Hello, Gin!",
-
+			"message": "Micro Ball API made with Go Gin",
 		})
 
 	})
 
 	config.ConnectDB()
-	router.Run(":8080")
+
+	routes.PlayerRoute(router)
+
+	err := router.Run(":8080")
+
+	if err != nil {
+		panic(err)
+	}
 
 }
